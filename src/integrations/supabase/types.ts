@@ -14,16 +14,192 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      listings: {
+        Row: {
+          brand: string
+          created_at: string
+          fantasy_text: string
+          id: string
+          price: number
+          seller_id: string
+          size: string
+          status: Database["public"]["Enums"]["listing_status"]
+          updated_at: string
+        }
+        Insert: {
+          brand: string
+          created_at?: string
+          fantasy_text: string
+          id?: string
+          price: number
+          seller_id: string
+          size: string
+          status?: Database["public"]["Enums"]["listing_status"]
+          updated_at?: string
+        }
+        Update: {
+          brand?: string
+          created_at?: string
+          fantasy_text?: string
+          id?: string
+          price?: number
+          seller_id?: string
+          size?: string
+          status?: Database["public"]["Enums"]["listing_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      orders: {
+        Row: {
+          buyer_id: string
+          created_at: string
+          id: string
+          listing_id: string
+          shipping_address: string | null
+          status: Database["public"]["Enums"]["order_status"]
+          total_amount: number
+          updated_at: string
+        }
+        Insert: {
+          buyer_id: string
+          created_at?: string
+          id?: string
+          listing_id: string
+          shipping_address?: string | null
+          status?: Database["public"]["Enums"]["order_status"]
+          total_amount: number
+          updated_at?: string
+        }
+        Update: {
+          buyer_id?: string
+          created_at?: string
+          id?: string
+          listing_id?: string
+          shipping_address?: string | null
+          status?: Database["public"]["Enums"]["order_status"]
+          total_amount?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "anonymous_listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          anonymous_alias: string
+          created_at: string
+          gender: Database["public"]["Enums"]["user_gender"]
+          id: string
+          name: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          anonymous_alias: string
+          created_at?: string
+          gender: Database["public"]["Enums"]["user_gender"]
+          id: string
+          name: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          anonymous_alias?: string
+          created_at?: string
+          gender?: Database["public"]["Enums"]["user_gender"]
+          id?: string
+          name?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
-      [_ in never]: never
+      anonymous_listings: {
+        Row: {
+          brand: string | null
+          created_at: string | null
+          fantasy_text: string | null
+          id: string | null
+          price: number | null
+          seller_alias: string | null
+          size: string | null
+          status: Database["public"]["Enums"]["listing_status"] | null
+        }
+        Insert: {
+          brand?: string | null
+          created_at?: string | null
+          fantasy_text?: string | null
+          id?: string | null
+          price?: number | null
+          seller_alias?: never
+          size?: string | null
+          status?: Database["public"]["Enums"]["listing_status"] | null
+        }
+        Update: {
+          brand?: string | null
+          created_at?: string | null
+          fantasy_text?: string | null
+          id?: string | null
+          price?: number | null
+          seller_alias?: never
+          size?: string | null
+          status?: Database["public"]["Enums"]["listing_status"] | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
-      [_ in never]: never
+      get_seller_alias: { Args: { _seller_id: string }; Returns: string }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "buyer" | "seller"
+      listing_status: "available" | "sold"
+      order_status: "pending" | "paid" | "shipped" | "delivered" | "cancelled"
+      user_gender: "female" | "male" | "non-binary" | "prefer-not-to-say"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +326,11 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["buyer", "seller"],
+      listing_status: ["available", "sold"],
+      order_status: ["pending", "paid", "shipped", "delivered", "cancelled"],
+      user_gender: ["female", "male", "non-binary", "prefer-not-to-say"],
+    },
   },
 } as const

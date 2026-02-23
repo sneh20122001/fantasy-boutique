@@ -1,12 +1,15 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import Layout from "@/components/Layout";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 type AuthMode = "signin" | "signup";
 
 const Auth = () => {
   const [mode, setMode] = useState<AuthMode>("signin");
+  const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -14,10 +17,36 @@ const Auth = () => {
     gender: "",
     password: "",
   });
+  const { signIn, signUp, user } = useAuth();
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  if (user) {
+    navigate("/browse");
+    return null;
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert("Auth will be connected to backend!");
+    setLoading(true);
+    try {
+      if (mode === "signin") {
+        await signIn(form.email, form.password);
+        toast.success("Welcome back!");
+        navigate("/browse");
+      } else {
+        if (!form.gender) {
+          toast.error("Please select your gender");
+          setLoading(false);
+          return;
+        }
+        await signUp(form.email, form.password, form.name, form.phone, form.gender);
+        toast.success("Account created! Check your email to confirm.");
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -34,20 +63,15 @@ const Auth = () => {
                 {mode === "signin" ? "Welcome Back" : "Join VelvetWhisper"}
               </h1>
               <p className="mt-2 font-body text-sm text-muted-foreground">
-                {mode === "signin"
-                  ? "Sign in to your account"
-                  : "Create your anonymous account"}
+                {mode === "signin" ? "Sign in to your account" : "Create your anonymous account"}
               </p>
             </div>
 
-            {/* Toggle */}
             <div className="mb-6 flex rounded-full border border-border bg-secondary p-1">
               <button
                 onClick={() => setMode("signin")}
                 className={`flex-1 rounded-full py-2 font-body text-xs font-medium transition-all ${
-                  mode === "signin"
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground"
+                  mode === "signin" ? "bg-primary text-primary-foreground" : "text-muted-foreground"
                 }`}
               >
                 Sign In
@@ -55,9 +79,7 @@ const Auth = () => {
               <button
                 onClick={() => setMode("signup")}
                 className={`flex-1 rounded-full py-2 font-body text-xs font-medium transition-all ${
-                  mode === "signup"
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground"
+                  mode === "signup" ? "bg-primary text-primary-foreground" : "text-muted-foreground"
                 }`}
               >
                 Sign Up
@@ -86,21 +108,17 @@ const Auth = () => {
                   <select
                     required
                     value={form.gender}
-                    onChange={(e) =>
-                      setForm({ ...form, gender: e.target.value })
-                    }
+                    onChange={(e) => setForm({ ...form, gender: e.target.value })}
                     className="w-full rounded-lg border border-border bg-background px-4 py-3 font-body text-sm text-foreground focus:border-primary/50 focus:outline-none"
                   >
-                    <option value="" disabled>
-                      Select Gender
-                    </option>
+                    <option value="" disabled>Select Gender</option>
                     <option value="female">Female</option>
                     <option value="male">Male</option>
                     <option value="non-binary">Non-binary</option>
                     <option value="prefer-not-to-say">Prefer not to say</option>
                   </select>
                   <p className="font-body text-xs text-muted-foreground">
-                    Note: Only female-identifying users can register as sellers.
+                    Only female-identifying users can register as sellers.
                   </p>
                 </>
               )}
@@ -116,6 +134,7 @@ const Auth = () => {
               <input
                 type="password"
                 required
+                minLength={6}
                 placeholder="Password"
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
@@ -124,9 +143,10 @@ const Auth = () => {
 
               <button
                 type="submit"
-                className="gradient-wine w-full rounded-full py-3 font-body text-sm font-medium text-primary-foreground shadow-glow transition-transform hover:scale-[1.02]"
+                disabled={loading}
+                className="gradient-wine w-full rounded-full py-3 font-body text-sm font-medium text-primary-foreground shadow-glow transition-transform hover:scale-[1.02] disabled:opacity-50"
               >
-                {mode === "signin" ? "Sign In" : "Create Account"}
+                {loading ? "Please wait..." : mode === "signin" ? "Sign In" : "Create Account"}
               </button>
             </form>
           </motion.div>
