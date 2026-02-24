@@ -3,12 +3,14 @@ import { motion } from "framer-motion";
 import { ShoppingBag, Menu, X, PenLine, LogOut } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCart } from "@/contexts/CartContext";
 
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, profile, isSeller, signOut } = useAuth();
+  const { itemCount } = useCart();
 
   const navItems = [
     { label: "Browse", path: "/browse" },
@@ -75,6 +77,11 @@ const Header = () => {
           )}
           <Link to="/cart" className="relative text-muted-foreground transition-colors hover:text-foreground">
             <ShoppingBag size={20} />
+            {itemCount > 0 && (
+              <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                {itemCount}
+              </span>
+            )}
           </Link>
         </div>
 

@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Listing } from "@/data/mockListings";
-import { ShoppingBag } from "lucide-react";
+import { ShoppingBag, Check } from "lucide-react";
+import { useCart } from "@/contexts/CartContext";
 
 interface ListingCardProps {
   listing: Listing;
@@ -8,6 +9,9 @@ interface ListingCardProps {
 }
 
 const ListingCard = ({ listing, index }: ListingCardProps) => {
+  const { addToCart, isInCart } = useCart();
+  const inCart = isInCart(listing.id);
+
   return (
     <motion.article
       initial={{ opacity: 0, y: 24 }}
@@ -46,9 +50,17 @@ const ListingCard = ({ listing, index }: ListingCardProps) => {
         <a href={`/listing/${listing.id}`} className="font-body text-xs text-primary/70 underline-offset-4 transition-colors hover:text-primary hover:underline">
           Read full story →
         </a>
-        <button className="flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 font-body text-xs font-medium text-primary transition-all hover:bg-primary hover:text-primary-foreground">
-          <ShoppingBag size={14} />
-          Add to Cart
+        <button
+          onClick={() => addToCart(listing)}
+          disabled={inCart}
+          className={`flex items-center gap-2 rounded-full px-4 py-2 font-body text-xs font-medium transition-all ${
+            inCart
+              ? "bg-primary/20 text-primary cursor-default"
+              : "bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground"
+          }`}
+        >
+          {inCart ? <Check size={14} /> : <ShoppingBag size={14} />}
+          {inCart ? "In Cart" : "Add to Cart"}
         </button>
       </div>
     </motion.article>

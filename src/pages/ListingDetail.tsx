@@ -3,13 +3,15 @@ import { motion } from "framer-motion";
 import Layout from "@/components/Layout";
 import { useListings } from "@/hooks/useListings";
 import { mockListings, Listing } from "@/data/mockListings";
-import { ArrowLeft, ShoppingBag, Loader2, User } from "lucide-react";
+import { ArrowLeft, ShoppingBag, Loader2, User, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useCart } from "@/contexts/CartContext";
 
 const ListingDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { data: dbListings, isLoading } = useListings();
+  const { addToCart, isInCart } = useCart();
 
   const allListings: Listing[] =
     dbListings && dbListings.length > 0
@@ -50,11 +52,12 @@ const ListingDetail = () => {
     );
   }
 
+  const inCart = isInCart(listing.id);
+
   return (
     <Layout>
       <section className="py-16">
         <div className="container mx-auto max-w-3xl px-6">
-          {/* Back */}
           <motion.button
             initial={{ opacity: 0, x: -12 }}
             animate={{ opacity: 1, x: 0 }}
@@ -64,7 +67,6 @@ const ListingDetail = () => {
             <ArrowLeft size={16} /> Back to stories
           </motion.button>
 
-          {/* Seller & Meta */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -86,7 +88,6 @@ const ListingDetail = () => {
             </span>
           </motion.div>
 
-          {/* Fantasy */}
           <motion.blockquote
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -98,7 +99,6 @@ const ListingDetail = () => {
             </p>
           </motion.blockquote>
 
-          {/* Item details + Purchase */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -119,9 +119,14 @@ const ListingDetail = () => {
                 ${listing.price}
               </span>
               {listing.status === "AVAILABLE" ? (
-                <Button className="gap-2 rounded-full px-6">
-                  <ShoppingBag size={16} />
-                  Add to Cart
+                <Button
+                  className="gap-2 rounded-full px-6"
+                  onClick={() => addToCart(listing)}
+                  disabled={inCart}
+                  variant={inCart ? "secondary" : "default"}
+                >
+                  {inCart ? <Check size={16} /> : <ShoppingBag size={16} />}
+                  {inCart ? "In Cart" : "Add to Cart"}
                 </Button>
               ) : (
                 <span className="rounded-full bg-muted px-4 py-2 font-body text-xs font-medium text-muted-foreground">
