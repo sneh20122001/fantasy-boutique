@@ -43,9 +43,9 @@ const ListingCard = ({ listing, index }: ListingCardProps) => {
 
       {/* Actions */}
       <div className="mt-4 flex items-center justify-between">
-        <button className="font-body text-xs text-primary/70 underline-offset-4 transition-colors hover:text-primary hover:underline">
+        <a href={`/listing/${listing.id}`} className="font-body text-xs text-primary/70 underline-offset-4 transition-colors hover:text-primary hover:underline">
           Read full story →
-        </button>
+        </a>
         <button className="flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 font-body text-xs font-medium text-primary transition-all hover:bg-primary hover:text-primary-foreground">
           <ShoppingBag size={14} />
           Add to Cart
