@@ -118,9 +118,14 @@ const Cart = () => {
                     <p className="font-body text-sm text-muted-foreground">Total</p>
                     <p className="font-display text-2xl font-semibold text-foreground">${total}</p>
                   </div>
-                  <Button onClick={handleCheckout} className="gap-2 rounded-full px-8">
-                    Checkout <ArrowRight size={16} />
-                  </Button>
+                  <div className="flex items-center gap-3">
+                    <Button variant="outline" onClick={clearCart} className="rounded-full text-destructive hover:bg-destructive/10 hover:text-destructive">
+                      Clear Cart
+                    </Button>
+                    <Button onClick={handleCheckout} className="gap-2 rounded-full px-8">
+                      Checkout <ArrowRight size={16} />
+                    </Button>
+                  </div>
                 </div>
               </>
             )}
