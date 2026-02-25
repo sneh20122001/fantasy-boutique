@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -119,9 +120,27 @@ const Cart = () => {
                     <p className="font-display text-2xl font-semibold text-foreground">${total}</p>
                   </div>
                   <div className="flex items-center gap-3">
-                    <Button variant="outline" onClick={clearCart} className="rounded-full text-destructive hover:bg-destructive/10 hover:text-destructive">
-                      Clear Cart
-                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="outline" className="rounded-full text-destructive hover:bg-destructive/10 hover:text-destructive">
+                          Clear Cart
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Clear your cart?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This will remove all {items.length} item{items.length > 1 ? "s" : ""} from your cart. This action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Keep Items</AlertDialogCancel>
+                          <AlertDialogAction onClick={clearCart} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                            Clear Cart
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                     <Button onClick={handleCheckout} className="gap-2 rounded-full px-8">
                       Checkout <ArrowRight size={16} />
                     </Button>
