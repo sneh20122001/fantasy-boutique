@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ShoppingBag, Menu, X, PenLine, LogOut } from "lucide-react";
+import { ShoppingBag, Menu, X, PenLine, LogOut, ClipboardList } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
@@ -57,6 +57,13 @@ const Header = () => {
           )}
           {user ? (
             <>
+              <Link
+                to="/orders"
+                className="text-muted-foreground transition-colors hover:text-foreground"
+                title="Order History"
+              >
+                <ClipboardList size={18} />
+              </Link>
               <span className="font-body text-xs text-muted-foreground">
                 {profile?.anonymous_alias || "Loading..."}
               </span>
@@ -106,7 +113,10 @@ const Header = () => {
               <Link to="/sell" onClick={() => setMenuOpen(false)} className="font-body text-sm text-primary">Sell an Item</Link>
             )}
             {user ? (
-              <button onClick={() => { handleSignOut(); setMenuOpen(false); }} className="font-body text-sm text-muted-foreground text-left">Sign Out</button>
+              <>
+                <Link to="/orders" onClick={() => setMenuOpen(false)} className="font-body text-sm text-muted-foreground">Order History</Link>
+                <button onClick={() => { handleSignOut(); setMenuOpen(false); }} className="font-body text-sm text-muted-foreground text-left">Sign Out</button>
+              </>
             ) : (
               <Link to="/auth" onClick={() => setMenuOpen(false)} className="font-body text-sm text-muted-foreground">Sign In</Link>
             )}
