@@ -19,6 +19,7 @@ export const useListings = () => {
       const { data, error } = await supabase
         .from("anonymous_listings")
         .select("*")
+        .eq("status", "available")
         .order("created_at", { ascending: false });
       if (error) throw error;
       return (data ?? []) as AnonymousListing[];
