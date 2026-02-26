@@ -48,6 +48,14 @@ const Cart = () => {
       }));
       const { error } = await supabase.from("orders").insert(orderRows);
       if (error) throw error;
+
+      // Mark listings as sold
+      const listingIds = items.map((item) => item.listing.id);
+      const { error: updateError } = await supabase
+        .from("listings")
+        .update({ status: "sold" })
+        .in("id", listingIds);
+      if (updateError) throw updateError;
       clearCart();
       setStep("cart");
       toast.success("Order placed! You'll receive confirmation shortly.");
