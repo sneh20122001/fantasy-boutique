@@ -1,33 +1,31 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import Layout from "@/components/Layout";
-import { useListings } from "@/hooks/useListings";
+import { useListing } from "@/hooks/useListing";
 import { mockListings, Listing } from "@/data/mockListings";
 import { ArrowLeft, ShoppingBag, Loader2, User, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
+import { Badge } from "@/components/ui/badge";
 
 const ListingDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { data: dbListings, isLoading } = useListings();
+  const { data: dbListing, isLoading } = useListing(id);
   const { addToCart, isInCart } = useCart();
 
-  const allListings: Listing[] =
-    dbListings && dbListings.length > 0
-      ? dbListings.map((l) => ({
-          id: l.id,
-          sellerAlias: l.seller_alias || "Anonymous",
-          size: l.size,
-          brand: l.brand,
-          price: Number(l.price),
-          fantasyText: l.fantasy_text,
-          status: l.status === "available" ? ("AVAILABLE" as const) : ("SOLD" as const),
-          createdAt: l.created_at,
-        }))
-      : mockListings;
-
-  const listing = allListings.find((l) => l.id === id);
+  const listing: Listing | undefined = dbListing
+    ? {
+        id: dbListing.id,
+        sellerAlias: dbListing.seller_alias || "Anonymous",
+        size: dbListing.size,
+        brand: dbListing.brand,
+        price: Number(dbListing.price),
+        fantasyText: dbListing.fantasy_text,
+        status: dbListing.status === "available" ? ("AVAILABLE" as const) : ("SOLD" as const),
+        createdAt: dbListing.created_at,
+      }
+    : mockListings.find((l) => l.id === id);
 
   if (isLoading) {
     return (
@@ -73,6 +71,11 @@ const ListingDetail = () => {
             transition={{ delay: 0.1 }}
             className="mb-8 flex flex-wrap items-center gap-4"
           >
+            {listing.status === "SOLD" && (
+              <Badge variant="destructive" className="rounded-full px-4 py-1 text-xs font-semibold uppercase tracking-wider">
+                Sold
+              </Badge>
+            )}
             <div className="flex items-center gap-2 rounded-full bg-secondary px-4 py-2">
               <User size={14} className="text-muted-foreground" />
               <span className="font-body text-xs tracking-widest uppercase text-muted-foreground">
