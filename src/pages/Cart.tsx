@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useState } from "react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const Cart = () => {
   const { items, removeFromCart, clearCart, total } = useCart();
@@ -31,13 +32,30 @@ const Cart = () => {
       toast.error("Please fill in all shipping fields");
       return;
     }
+    if (!user) {
+      toast.error("Please sign in to checkout");
+      return;
+    }
     setPlacing(true);
-    // Simulate order — Stripe integration would go here
-    await new Promise((r) => setTimeout(r, 1500));
-    clearCart();
-    setPlacing(false);
-    setStep("cart");
-    toast.success("Order placed! You'll receive confirmation shortly.");
+    try {
+      const shippingAddress = `${shipping.name}, ${shipping.address}, ${shipping.city}, ${shipping.zip}`;
+      const orderRows = items.map((item) => ({
+        buyer_id: user.id,
+        listing_id: item.listing.id,
+        total_amount: item.listing.price,
+        shipping_address: shippingAddress,
+        status: "pending" as const,
+      }));
+      const { error } = await supabase.from("orders").insert(orderRows);
+      if (error) throw error;
+      clearCart();
+      setStep("cart");
+      toast.success("Order placed! You'll receive confirmation shortly.");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to place order");
+    } finally {
+      setPlacing(false);
+    }
   };
 
   if (items.length === 0 && step === "cart") {
