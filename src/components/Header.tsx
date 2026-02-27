@@ -47,13 +47,21 @@ const Header = () => {
 
         <div className="hidden items-center gap-4 md:flex">
           {isSeller && (
-            <Link
-              to="/sell"
-              className="flex items-center gap-2 rounded-full border border-primary/30 px-4 py-2 font-body text-sm text-primary transition-all hover:bg-primary/10"
-            >
-              <PenLine size={14} />
-              Sell
-            </Link>
+            <>
+              <Link
+                to="/my-listings"
+                className="font-body text-sm tracking-wide text-muted-foreground transition-colors hover:text-primary"
+              >
+                My Listings
+              </Link>
+              <Link
+                to="/sell"
+                className="flex items-center gap-2 rounded-full border border-primary/30 px-4 py-2 font-body text-sm text-primary transition-all hover:bg-primary/10"
+              >
+                <PenLine size={14} />
+                Sell
+              </Link>
+            </>
           )}
           {user ? (
             <>
@@ -110,7 +118,10 @@ const Header = () => {
               </Link>
             ))}
             {isSeller && (
-              <Link to="/sell" onClick={() => setMenuOpen(false)} className="font-body text-sm text-primary">Sell an Item</Link>
+              <>
+                <Link to="/my-listings" onClick={() => setMenuOpen(false)} className="font-body text-sm text-muted-foreground">My Listings</Link>
+                <Link to="/sell" onClick={() => setMenuOpen(false)} className="font-body text-sm text-primary">Sell an Item</Link>
+              </>
             )}
             {user ? (
               <>

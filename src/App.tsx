@@ -13,6 +13,7 @@ import Cart from "./pages/Cart";
 import HowItWorks from "./pages/HowItWorks";
 import ListingDetail from "./pages/ListingDetail";
 import Orders from "./pages/Orders";
+import MyListings from "./pages/MyListings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -33,6 +34,7 @@ const App = () => (
               <Route path="/auth" element={<Auth />} />
               <Route path="/cart" element={<Cart />} />
               <Route path="/orders" element={<Orders />} />
+              <Route path="/my-listings" element={<MyListings />} />
               <Route path="/how-it-works" element={<HowItWorks />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
