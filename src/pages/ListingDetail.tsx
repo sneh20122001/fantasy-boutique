@@ -22,6 +22,7 @@ const ListingDetail = () => {
         brand: dbListing.brand,
         price: Number(dbListing.price),
         fantasyText: dbListing.fantasy_text,
+        imageUrl: dbListing.image_url,
         status: dbListing.status === "available" ? ("AVAILABLE" as const) : ("SOLD" as const),
         createdAt: dbListing.created_at,
       }
@@ -90,6 +91,21 @@ const ListingDetail = () => {
               })}
             </span>
           </motion.div>
+
+          {listing.imageUrl && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 }}
+              className="mb-8 overflow-hidden rounded-lg border border-border"
+            >
+              <img
+                src={listing.imageUrl}
+                alt={`${listing.brand} listing`}
+                className="max-h-96 w-full object-cover"
+              />
+            </motion.div>
+          )}
 
           <motion.blockquote
             initial={{ opacity: 0, y: 20 }}

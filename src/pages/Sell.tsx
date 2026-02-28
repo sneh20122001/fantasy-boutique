@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useNavigate, Link } from "react-router-dom";
+import ImageUpload from "@/components/ImageUpload";
 
 const Sell = () => {
   const { user, isSeller } = useAuth();
@@ -17,6 +18,7 @@ const Sell = () => {
     price: "",
     fantasyText: "",
   });
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
 
   if (!user) {
     return (
@@ -63,6 +65,7 @@ const Sell = () => {
         size: form.size,
         price: parseFloat(form.price),
         fantasy_text: form.fantasyText,
+        image_url: imageUrl,
       });
       if (error) throw error;
       toast.success("Listing published anonymously!");
@@ -90,6 +93,8 @@ const Sell = () => {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
+              <ImageUpload value={imageUrl} onChange={setImageUrl} />
+
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <label className="mb-2 block font-body text-xs uppercase tracking-widest text-muted-foreground">Brand</label>

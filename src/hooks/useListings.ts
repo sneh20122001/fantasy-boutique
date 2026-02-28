@@ -8,6 +8,7 @@ export interface AnonymousListing {
   brand: string;
   price: number;
   fantasy_text: string;
+  image_url: string | null;
   status: string;
   created_at: string;
 }

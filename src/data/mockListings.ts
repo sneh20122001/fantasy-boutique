@@ -5,6 +5,7 @@ export interface Listing {
   brand: string;
   price: number;
   fantasyText: string;
+  imageUrl?: string | null;
   status: "AVAILABLE" | "SOLD";
   createdAt: string;
 }
