@@ -4,7 +4,7 @@ import Layout from "@/components/Layout";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Link, useNavigate } from "react-router-dom";
-import { PenLine, Loader2, Trash2, Tag } from "lucide-react";
+import { PenLine, Loader2, Trash2, Tag, Pencil } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -231,6 +231,13 @@ const ListingRow = ({
           </Badge>
         </div>
         {!isSold && (
+          <div className="flex shrink-0 items-center gap-2">
+            <Link
+              to={`/edit-listing/${listing.id}`}
+              className="text-muted-foreground transition-colors hover:text-primary"
+            >
+              <Pencil size={16} />
+            </Link>
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <button
@@ -258,6 +265,7 @@ const ListingRow = ({
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
+          </div>
         )}
       </div>
     </motion.div>
