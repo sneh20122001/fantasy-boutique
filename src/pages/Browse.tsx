@@ -19,6 +19,7 @@ const Browse = () => {
         brand: l.brand,
         price: Number(l.price),
         fantasyText: l.fantasy_text,
+        imageUrl: l.image_url,
         status: l.status === "available" ? "AVAILABLE" as const : "SOLD" as const,
         createdAt: l.created_at,
       }))

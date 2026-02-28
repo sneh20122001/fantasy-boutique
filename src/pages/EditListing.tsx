@@ -5,7 +5,8 @@ import { PenLine, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { useNavigate, useParams, Link } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import ImageUpload from "@/components/ImageUpload";
 
 const EditListing = () => {
   const { id } = useParams<{ id: string }>();
@@ -19,6 +20,7 @@ const EditListing = () => {
     price: "",
     fantasyText: "",
   });
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (authLoading) return;
@@ -30,7 +32,7 @@ const EditListing = () => {
     const fetchListing = async () => {
       const { data, error } = await supabase
         .from("listings")
-        .select("brand, size, price, fantasy_text, seller_id, status")
+        .select("brand, size, price, fantasy_text, seller_id, status, image_url")
         .eq("id", id!)
         .single();
 
@@ -58,6 +60,7 @@ const EditListing = () => {
         price: String(data.price),
         fantasyText: data.fantasy_text,
       });
+      setImageUrl(data.image_url || null);
       setLoading(false);
     };
 
@@ -79,6 +82,7 @@ const EditListing = () => {
           size: form.size,
           price: parseFloat(form.price),
           fantasy_text: form.fantasyText,
+          image_url: imageUrl,
         })
         .eq("id", id!)
         .eq("seller_id", user!.id);
@@ -119,6 +123,8 @@ const EditListing = () => {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
+              <ImageUpload value={imageUrl} onChange={setImageUrl} />
+
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <label className="mb-2 block font-body text-xs uppercase tracking-widest text-muted-foreground">Brand</label>
