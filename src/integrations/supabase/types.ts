@@ -20,6 +20,7 @@ export type Database = {
           created_at: string
           fantasy_text: string
           id: string
+          image_url: string | null
           price: number
           seller_id: string
           size: string
@@ -31,6 +32,7 @@ export type Database = {
           created_at?: string
           fantasy_text: string
           id?: string
+          image_url?: string | null
           price: number
           seller_id: string
           size: string
@@ -42,6 +44,7 @@ export type Database = {
           created_at?: string
           fantasy_text?: string
           id?: string
+          image_url?: string | null
           price?: number
           seller_id?: string
           size?: string
@@ -157,30 +160,11 @@ export type Database = {
           created_at: string | null
           fantasy_text: string | null
           id: string | null
+          image_url: string | null
           price: number | null
           seller_alias: string | null
           size: string | null
           status: Database["public"]["Enums"]["listing_status"] | null
-        }
-        Insert: {
-          brand?: string | null
-          created_at?: string | null
-          fantasy_text?: string | null
-          id?: string | null
-          price?: number | null
-          seller_alias?: never
-          size?: string | null
-          status?: Database["public"]["Enums"]["listing_status"] | null
-        }
-        Update: {
-          brand?: string | null
-          created_at?: string | null
-          fantasy_text?: string | null
-          id?: string | null
-          price?: number | null
-          seller_alias?: never
-          size?: string | null
-          status?: Database["public"]["Enums"]["listing_status"] | null
         }
         Relationships: []
       }
