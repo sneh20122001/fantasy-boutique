@@ -7,11 +7,14 @@ import { ArrowLeft, ShoppingBag, Loader2, User, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { Badge } from "@/components/ui/badge";
+import { useListingImages } from "@/hooks/useListingImages";
+import ImageGallery from "@/components/ImageGallery";
 
 const ListingDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { data: dbListing, isLoading } = useListing(id);
+  const { data: listingImages } = useListingImages(id);
   const { addToCart, isInCart } = useCart();
 
   const listing: Listing | undefined = dbListing
@@ -92,20 +95,23 @@ const ListingDetail = () => {
             </span>
           </motion.div>
 
-          {listing.imageUrl && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.15 }}
-              className="mb-8 overflow-hidden rounded-lg border border-border"
-            >
-              <img
-                src={listing.imageUrl}
-                alt={`${listing.brand} listing`}
-                className="max-h-96 w-full object-cover"
-              />
-            </motion.div>
-          )}
+          {(() => {
+            const galleryImages = listingImages?.length
+              ? listingImages.map((img) => img.image_url)
+              : listing.imageUrl
+                ? [listing.imageUrl]
+                : [];
+            return galleryImages.length > 0 ? (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+                className="mb-8"
+              >
+                <ImageGallery images={galleryImages} alt={`${listing.brand} listing`} />
+              </motion.div>
+            ) : null;
+          })()}
 
           <motion.blockquote
             initial={{ opacity: 0, y: 20 }}

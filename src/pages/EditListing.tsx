@@ -6,7 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useNavigate, useParams } from "react-router-dom";
-import ImageUpload from "@/components/ImageUpload";
+import MultiImageUpload from "@/components/MultiImageUpload";
 
 const EditListing = () => {
   const { id } = useParams<{ id: string }>();
@@ -20,7 +20,7 @@ const EditListing = () => {
     price: "",
     fantasyText: "",
   });
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [images, setImages] = useState<string[]>([]);
 
   useEffect(() => {
     if (authLoading) return;
@@ -60,7 +60,18 @@ const EditListing = () => {
         price: String(data.price),
         fantasyText: data.fantasy_text,
       });
-      setImageUrl(data.image_url || null);
+      // Fetch gallery images
+      const { data: imgData } = await supabase
+        .from("listing_images")
+        .select("image_url")
+        .eq("listing_id", id!)
+        .order("position", { ascending: true });
+
+      if (imgData && imgData.length > 0) {
+        setImages(imgData.map((r: any) => r.image_url));
+      } else if (data.image_url) {
+        setImages([data.image_url]);
+      }
       setLoading(false);
     };
 
@@ -82,12 +93,24 @@ const EditListing = () => {
           size: form.size,
           price: parseFloat(form.price),
           fantasy_text: form.fantasyText,
-          image_url: imageUrl,
+          image_url: images[0] || null,
         })
         .eq("id", id!)
         .eq("seller_id", user!.id);
 
       if (error) throw error;
+
+      // Replace gallery images
+      await supabase.from("listing_images").delete().eq("listing_id", id!);
+      if (images.length > 0) {
+        const imageRows = images.map((url, i) => ({
+          listing_id: id!,
+          image_url: url,
+          position: i,
+        }));
+        await supabase.from("listing_images").insert(imageRows);
+      }
+
       toast.success("Listing updated!");
       navigate("/my-listings");
     } catch (err: any) {
@@ -123,7 +146,7 @@ const EditListing = () => {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              <ImageUpload value={imageUrl} onChange={setImageUrl} />
+              <MultiImageUpload values={images} onChange={setImages} />
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
