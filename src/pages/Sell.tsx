@@ -6,7 +6,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useNavigate, Link } from "react-router-dom";
-import ImageUpload from "@/components/ImageUpload";
+import MultiImageUpload from "@/components/MultiImageUpload";
+import { supabase as sb } from "@/integrations/supabase/client";
 
 const Sell = () => {
   const { user, isSeller } = useAuth();
@@ -18,7 +19,7 @@ const Sell = () => {
     price: "",
     fantasyText: "",
   });
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [images, setImages] = useState<string[]>([]);
 
   if (!user) {
     return (
@@ -59,15 +60,26 @@ const Sell = () => {
     }
     setLoading(true);
     try {
-      const { error } = await supabase.from("listings").insert({
+      const { data: inserted, error } = await supabase.from("listings").insert({
         seller_id: user.id,
         brand: form.brand,
         size: form.size,
         price: parseFloat(form.price),
         fantasy_text: form.fantasyText,
-        image_url: imageUrl,
-      });
+        image_url: images[0] || null,
+      }).select("id").single();
       if (error) throw error;
+
+      // Save additional images
+      if (images.length > 0 && inserted) {
+        const imageRows = images.map((url, i) => ({
+          listing_id: inserted.id,
+          image_url: url,
+          position: i,
+        }));
+        await supabase.from("listing_images").insert(imageRows);
+      }
+
       toast.success("Listing published anonymously!");
       navigate("/browse");
     } catch (err: any) {
@@ -93,7 +105,7 @@ const Sell = () => {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              <ImageUpload value={imageUrl} onChange={setImageUrl} />
+              <MultiImageUpload values={images} onChange={setImages} />
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
