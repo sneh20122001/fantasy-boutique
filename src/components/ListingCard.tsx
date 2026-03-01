@@ -1,14 +1,15 @@
 import { motion } from "framer-motion";
 import { Listing } from "@/data/mockListings";
-import { ShoppingBag, Check } from "lucide-react";
+import { ShoppingBag, Check, ImageIcon } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 
 interface ListingCardProps {
   listing: Listing;
   index: number;
+  images?: string[];
 }
 
-const ListingCard = ({ listing, index }: ListingCardProps) => {
+const ListingCard = ({ listing, index, images }: ListingCardProps) => {
   const { addToCart, isInCart } = useCart();
   const inCart = isInCart(listing.id);
 
@@ -20,15 +21,25 @@ const ListingCard = ({ listing, index }: ListingCardProps) => {
       className="group gradient-card overflow-hidden rounded-lg border border-border shadow-card transition-all duration-300 hover:border-primary/30 hover:shadow-glow"
     >
       {/* Image */}
-      {listing.imageUrl && (
-        <a href={`/listing/${listing.id}`}>
-          <img
-            src={listing.imageUrl}
-            alt={`${listing.brand} listing`}
-            className="h-48 w-full object-cover transition-transform duration-300 group-hover:scale-105"
-          />
-        </a>
-      )}
+      {(() => {
+        const thumb = images?.[0] || listing.imageUrl;
+        const count = images?.length || (listing.imageUrl ? 1 : 0);
+        return thumb ? (
+          <a href={`/listing/${listing.id}`} className="relative block">
+            <img
+              src={thumb}
+              alt={`${listing.brand} listing`}
+              className="h-48 w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            />
+            {count > 1 && (
+              <span className="absolute bottom-2 right-2 flex items-center gap-1 rounded-full bg-background/80 px-2 py-0.5 font-body text-[10px] font-medium text-foreground backdrop-blur-sm">
+                <ImageIcon size={10} />
+                {count}
+              </span>
+            )}
+          </a>
+        ) : null;
+      })()}
 
       <div className="p-6">
         {/* Header */}

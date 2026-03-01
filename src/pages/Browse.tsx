@@ -2,13 +2,20 @@ import { motion } from "framer-motion";
 import Layout from "@/components/Layout";
 import ListingCard from "@/components/ListingCard";
 import { useListings } from "@/hooks/useListings";
+import { useListingsImages } from "@/hooks/useListingImages";
 import { mockListings } from "@/data/mockListings";
 import { Search, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
 const Browse = () => {
   const { data: listings, isLoading } = useListings();
   const [search, setSearch] = useState("");
+
+  const listingIds = useMemo(
+    () => (listings ?? []).map((l) => l.id).filter(Boolean) as string[],
+    [listings]
+  );
+  const { data: imagesMap } = useListingsImages(listingIds);
 
   // Use real listings if available, otherwise show mock data
   const displayListings = listings && listings.length > 0
@@ -65,7 +72,7 @@ const Browse = () => {
           ) : (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {filtered.map((listing, i) => (
-                <ListingCard key={listing.id} listing={listing} index={i} />
+                <ListingCard key={listing.id} listing={listing} index={i} images={imagesMap?.[listing.id]?.map(img => img.image_url)} />
               ))}
             </div>
           )}
