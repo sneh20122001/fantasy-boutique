@@ -1,5 +1,5 @@
-import { useState, useRef } from "react";
-import { ImagePlus, X, Loader2 } from "lucide-react";
+import { useState, useRef, useCallback } from "react";
+import { ImagePlus, X, Loader2, GripVertical } from "lucide-react";
 
 interface MultiImageUploadProps {
   values: string[];
@@ -32,6 +32,8 @@ const resizeImage = (file: File): Promise<string> =>
 
 const MultiImageUpload = ({ values, onChange, max = 5 }: MultiImageUploadProps) => {
   const [loading, setLoading] = useState(false);
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [overIndex, setOverIndex] = useState<number | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFiles = async (files: FileList) => {
@@ -53,19 +55,80 @@ const MultiImageUpload = ({ values, onChange, max = 5 }: MultiImageUploadProps) 
     onChange(values.filter((_, i) => i !== index));
   };
 
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    setDragIndex(index);
+    e.dataTransfer.effectAllowed = "move";
+    // Use a transparent image to avoid default ghost
+    const img = new Image();
+    img.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+    e.dataTransfer.setDragImage(img, 0, 0);
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    setOverIndex(index);
+  };
+
+  const handleDrop = useCallback(
+    (e: React.DragEvent, dropIndex: number) => {
+      e.preventDefault();
+      if (dragIndex === null || dragIndex === dropIndex) {
+        setDragIndex(null);
+        setOverIndex(null);
+        return;
+      }
+      const updated = [...values];
+      const [moved] = updated.splice(dragIndex, 1);
+      updated.splice(dropIndex, 0, moved);
+      onChange(updated);
+      setDragIndex(null);
+      setOverIndex(null);
+    },
+    [dragIndex, values, onChange]
+  );
+
+  const handleDragEnd = () => {
+    setDragIndex(null);
+    setOverIndex(null);
+  };
+
   return (
     <div>
       <label className="mb-2 block font-body text-xs uppercase tracking-widest text-muted-foreground">
         Photos ({values.length}/{max})
+        {values.length > 1 && (
+          <span className="ml-2 normal-case tracking-normal text-muted-foreground/60">
+            — drag to reorder
+          </span>
+        )}
       </label>
       <div className="flex flex-wrap gap-3">
         {values.map((url, i) => (
-          <div key={i} className="relative">
+          <div
+            key={i}
+            draggable
+            onDragStart={(e) => handleDragStart(e, i)}
+            onDragOver={(e) => handleDragOver(e, i)}
+            onDrop={(e) => handleDrop(e, i)}
+            onDragEnd={handleDragEnd}
+            className={`group relative cursor-grab transition-all duration-200 active:cursor-grabbing ${
+              dragIndex === i ? "scale-95 opacity-50" : ""
+            } ${overIndex === i && dragIndex !== i ? "ring-2 ring-primary ring-offset-2 ring-offset-background rounded-lg" : ""}`}
+          >
             <img
               src={url}
               alt={`Upload ${i + 1}`}
-              className="h-28 w-28 rounded-lg border border-border object-cover"
+              className="h-28 w-28 rounded-lg border border-border object-cover pointer-events-none"
             />
+            {/* Drag handle indicator */}
+            <div className="absolute left-1 top-1 rounded bg-background/70 p-0.5 opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100">
+              <GripVertical size={12} className="text-foreground" />
+            </div>
+            {/* Position badge */}
+            <span className="absolute bottom-1 left-1 flex h-5 w-5 items-center justify-center rounded-full bg-background/80 text-[10px] font-semibold text-foreground backdrop-blur-sm">
+              {i + 1}
+            </span>
             <button
               type="button"
               onClick={() => remove(i)}
