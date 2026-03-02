@@ -4,10 +4,11 @@ import ListingCard from "@/components/ListingCard";
 import { useListings } from "@/hooks/useListings";
 import { useListingsImages } from "@/hooks/useListingImages";
 import { mockListings } from "@/data/mockListings";
-import { Search, Loader2, SlidersHorizontal, X } from "lucide-react";
+import { Search, Loader2, SlidersHorizontal, X, ArrowUpDown } from "lucide-react";
 import { useState, useMemo } from "react";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const Browse = () => {
   const { data: listings, isLoading } = useListings();
@@ -16,6 +17,7 @@ const Browse = () => {
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 500]);
+  const [sortBy, setSortBy] = useState<string>("newest");
 
   const listingIds = useMemo(
     () => (listings ?? []).map((l) => l.id).filter(Boolean) as string[],
@@ -54,16 +56,30 @@ const Browse = () => {
   const activeFilterCount =
     selectedBrands.length + selectedSizes.length + (priceRange[0] > 0 || priceRange[1] < maxPrice ? 1 : 0);
 
-  const filtered = displayListings.filter((l) => {
-    const matchesSearch =
-      l.brand.toLowerCase().includes(search.toLowerCase()) ||
-      l.size.toLowerCase().includes(search.toLowerCase()) ||
-      l.fantasyText.toLowerCase().includes(search.toLowerCase());
-    const matchesBrand = selectedBrands.length === 0 || selectedBrands.includes(l.brand);
-    const matchesSize = selectedSizes.length === 0 || selectedSizes.includes(l.size);
-    const matchesPrice = l.price >= priceRange[0] && l.price <= priceRange[1];
-    return matchesSearch && matchesBrand && matchesSize && matchesPrice;
-  });
+  const filtered = useMemo(() => {
+    const result = displayListings.filter((l) => {
+      const matchesSearch =
+        l.brand.toLowerCase().includes(search.toLowerCase()) ||
+        l.size.toLowerCase().includes(search.toLowerCase()) ||
+        l.fantasyText.toLowerCase().includes(search.toLowerCase());
+      const matchesBrand = selectedBrands.length === 0 || selectedBrands.includes(l.brand);
+      const matchesSize = selectedSizes.length === 0 || selectedSizes.includes(l.size);
+      const matchesPrice = l.price >= priceRange[0] && l.price <= priceRange[1];
+      return matchesSearch && matchesBrand && matchesSize && matchesPrice;
+    });
+
+    switch (sortBy) {
+      case "price-asc":
+        return [...result].sort((a, b) => a.price - b.price);
+      case "price-desc":
+        return [...result].sort((a, b) => b.price - a.price);
+      case "newest":
+      default:
+        return [...result].sort((a, b) =>
+          (b.createdAt || "").localeCompare(a.createdAt || "")
+        );
+    }
+  }, [displayListings, search, selectedBrands, selectedSizes, priceRange, sortBy]);
 
   const toggleBrand = (brand: string) =>
     setSelectedBrands((prev) =>
@@ -123,6 +139,17 @@ const Browse = () => {
                   </span>
                 )}
               </button>
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="w-[160px] rounded-full border-border bg-secondary font-body text-sm">
+                  <ArrowUpDown size={14} className="mr-1 text-muted-foreground" />
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="newest">Newest first</SelectItem>
+                  <SelectItem value="price-asc">Price: Low → High</SelectItem>
+                  <SelectItem value="price-desc">Price: High → Low</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </motion.div>
 
