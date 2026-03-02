@@ -1,7 +1,9 @@
 import { motion } from "framer-motion";
 import { Listing } from "@/data/mockListings";
-import { ShoppingBag, Check, ImageIcon } from "lucide-react";
+import { ShoppingBag, Check, ImageIcon, Heart } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
+import { useFavorites } from "@/hooks/useFavorites";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface ListingCardProps {
   listing: Listing;
@@ -11,7 +13,10 @@ interface ListingCardProps {
 
 const ListingCard = ({ listing, index, images }: ListingCardProps) => {
   const { addToCart, isInCart } = useCart();
+  const { user } = useAuth();
+  const { isFavorite, toggleFavorite } = useFavorites();
   const inCart = isInCart(listing.id);
+  const faved = isFavorite(listing.id);
 
   return (
     <motion.article
@@ -36,6 +41,15 @@ const ListingCard = ({ listing, index, images }: ListingCardProps) => {
                 <ImageIcon size={10} />
                 {count}
               </span>
+            )}
+            {user && (
+              <button
+                onClick={(e) => { e.preventDefault(); toggleFavorite(listing.id); }}
+                className="absolute top-2 right-2 flex h-8 w-8 items-center justify-center rounded-full bg-background/70 backdrop-blur-sm transition-colors hover:bg-background/90"
+                aria-label={faved ? "Remove from favorites" : "Save to favorites"}
+              >
+                <Heart size={16} className={faved ? "fill-primary text-primary" : "text-muted-foreground"} />
+              </button>
             )}
           </a>
         ) : null;

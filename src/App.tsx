@@ -15,6 +15,7 @@ import ListingDetail from "./pages/ListingDetail";
 import Orders from "./pages/Orders";
 import MyListings from "./pages/MyListings";
 import EditListing from "./pages/EditListing";
+import Favorites from "./pages/Favorites";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ const App = () => (
               <Route path="/my-listings" element={<MyListings />} />
               <Route path="/edit-listing/:id" element={<EditListing />} />
               <Route path="/how-it-works" element={<HowItWorks />} />
+              <Route path="/favorites" element={<Favorites />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </CartProvider>
