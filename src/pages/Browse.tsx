@@ -5,7 +5,7 @@ import { useListings } from "@/hooks/useListings";
 import { useListingsImages } from "@/hooks/useListingImages";
 import { mockListings } from "@/data/mockListings";
 import { Search, Loader2, SlidersHorizontal, X, ArrowUpDown } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -18,6 +18,8 @@ const Browse = () => {
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 500]);
   const [sortBy, setSortBy] = useState<string>("newest");
+  const [visibleCount, setVisibleCount] = useState(12);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
 
   const listingIds = useMemo(
     () => (listings ?? []).map((l) => l.id).filter(Boolean) as string[],
@@ -80,6 +82,30 @@ const Browse = () => {
         );
     }
   }, [displayListings, search, selectedBrands, selectedSizes, priceRange, sortBy]);
+
+  // Reset visible count when filters/sort change
+  useEffect(() => {
+    setVisibleCount(12);
+  }, [search, selectedBrands, selectedSizes, priceRange, sortBy]);
+
+  const visibleListings = useMemo(() => filtered.slice(0, visibleCount), [filtered, visibleCount]);
+  const hasMore = visibleCount < filtered.length;
+
+  // Infinite scroll observer
+  useEffect(() => {
+    const el = loadMoreRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore) {
+          setVisibleCount((c) => c + 12);
+        }
+      },
+      { rootMargin: "200px" }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasMore]);
 
   const toggleBrand = (brand: string) =>
     setSelectedBrands((prev) =>
@@ -273,11 +299,18 @@ const Browse = () => {
             <>
               <p className="mb-4 font-body text-xs text-muted-foreground">
                 {filtered.length} {filtered.length === 1 ? "story" : "stories"} found
+                {hasMore && ` · showing ${visibleCount}`}
               </p>
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {filtered.map((listing, i) => (
+                {visibleListings.map((listing, i) => (
                   <ListingCard key={listing.id} listing={listing} index={i} images={imagesMap?.[listing.id]?.map(img => img.image_url)} />
                 ))}
+              </div>
+              {/* Infinite scroll sentinel */}
+              <div ref={loadMoreRef} className="py-8 text-center">
+                {hasMore && (
+                  <Loader2 className="mx-auto animate-spin text-primary" size={24} />
+                )}
               </div>
             </>
           )}
