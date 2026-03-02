@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ShoppingBag, Menu, X, PenLine, LogOut, ClipboardList } from "lucide-react";
+import { ShoppingBag, Menu, X, PenLine, LogOut, ClipboardList, Heart } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
@@ -66,6 +66,13 @@ const Header = () => {
           {user ? (
             <>
               <Link
+                to="/favorites"
+                className="text-muted-foreground transition-colors hover:text-foreground"
+                title="Favorites"
+              >
+                <Heart size={18} />
+              </Link>
+              <Link
                 to="/orders"
                 className="text-muted-foreground transition-colors hover:text-foreground"
                 title="Order History"
@@ -125,6 +132,7 @@ const Header = () => {
             )}
             {user ? (
               <>
+                <Link to="/favorites" onClick={() => setMenuOpen(false)} className="font-body text-sm text-muted-foreground">Favorites</Link>
                 <Link to="/orders" onClick={() => setMenuOpen(false)} className="font-body text-sm text-muted-foreground">Order History</Link>
                 <button onClick={() => { handleSignOut(); setMenuOpen(false); }} className="font-body text-sm text-muted-foreground text-left">Sign Out</button>
               </>
