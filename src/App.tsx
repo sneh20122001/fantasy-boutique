@@ -15,6 +15,7 @@ import ListingDetail from "./pages/ListingDetail";
 import Orders from "./pages/Orders";
 import MyListings from "./pages/MyListings";
 import EditListing from "./pages/EditListing";
+import SellerDashboard from "./pages/SellerDashboard";
 import Favorites from "./pages/Favorites";
 import NotFound from "./pages/NotFound";
 
@@ -37,6 +38,7 @@ const App = () => (
               <Route path="/cart" element={<Cart />} />
               <Route path="/orders" element={<Orders />} />
               <Route path="/my-listings" element={<MyListings />} />
+              <Route path="/seller-dashboard" element={<SellerDashboard />} />
               <Route path="/edit-listing/:id" element={<EditListing />} />
               <Route path="/how-it-works" element={<HowItWorks />} />
               <Route path="/favorites" element={<Favorites />} />

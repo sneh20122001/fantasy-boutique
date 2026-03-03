@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ShoppingBag, Menu, X, PenLine, LogOut, ClipboardList, Heart } from "lucide-react";
+import { ShoppingBag, Menu, X, PenLine, LogOut, ClipboardList, Heart, LayoutDashboard } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
@@ -51,6 +51,13 @@ const Header = () => {
         <div className="hidden items-center gap-4 md:flex">
           {isSeller && (
             <>
+              <Link
+                to="/seller-dashboard"
+                className="flex items-center gap-1.5 font-body text-sm tracking-wide text-muted-foreground transition-colors hover:text-primary"
+              >
+                <LayoutDashboard size={14} />
+                Dashboard
+              </Link>
               <Link
                 to="/my-listings"
                 className="font-body text-sm tracking-wide text-muted-foreground transition-colors hover:text-primary"
@@ -134,6 +141,7 @@ const Header = () => {
             ))}
             {isSeller && (
               <>
+                <Link to="/seller-dashboard" onClick={() => setMenuOpen(false)} className="font-body text-sm text-muted-foreground">Dashboard</Link>
                 <Link to="/my-listings" onClick={() => setMenuOpen(false)} className="font-body text-sm text-muted-foreground">My Listings</Link>
                 <Link to="/sell" onClick={() => setMenuOpen(false)} className="font-body text-sm text-primary">Sell an Item</Link>
               </>
