@@ -4,6 +4,7 @@ import { ShoppingBag, Menu, X, PenLine, LogOut, ClipboardList, Heart } from "luc
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
+import { useFavorites } from "@/hooks/useFavorites";
 
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -11,6 +12,8 @@ const Header = () => {
   const navigate = useNavigate();
   const { user, profile, isSeller, signOut } = useAuth();
   const { itemCount } = useCart();
+  const { favoriteIds } = useFavorites();
+  const favCount = favoriteIds.length;
 
   const navItems = [
     { label: "Browse", path: "/browse" },
@@ -67,10 +70,15 @@ const Header = () => {
             <>
               <Link
                 to="/favorites"
-                className="text-muted-foreground transition-colors hover:text-foreground"
+                className="relative text-muted-foreground transition-colors hover:text-foreground"
                 title="Favorites"
               >
                 <Heart size={18} />
+                {favCount > 0 && (
+                  <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                    {favCount}
+                  </span>
+                )}
               </Link>
               <Link
                 to="/orders"
