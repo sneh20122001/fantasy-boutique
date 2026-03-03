@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import Layout from "@/components/Layout";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, Link } from "react-router-dom";
+import { toast } from "sonner";
 import {
   Package,
   DollarSign,
@@ -17,10 +18,17 @@ import {
   PenLine,
   BarChart3,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface SellerOrder {
   id: string;
@@ -44,6 +52,14 @@ const statusConfig: Record<
   shipped: { label: "Shipped", icon: <Truck size={14} />, variant: "default" },
   delivered: { label: "Delivered", icon: <CheckCircle size={14} />, variant: "default" },
   cancelled: { label: "Cancelled", icon: <XCircle size={14} />, variant: "destructive" },
+};
+
+const nextStatusOptions: Record<string, string[]> = {
+  pending: ["paid", "cancelled"],
+  paid: ["shipped", "cancelled"],
+  shipped: ["delivered"],
+  delivered: [],
+  cancelled: [],
 };
 
 const SellerDashboard = () => {
@@ -100,6 +116,23 @@ const SellerDashboard = () => {
 
     fetchData();
   }, [user, isSeller, authLoading, navigate]);
+
+  const handleStatusChange = useCallback(async (orderId: string, newStatus: string) => {
+    const { error } = await supabase
+      .from("orders")
+      .update({ status: newStatus as any })
+      .eq("id", orderId);
+
+    if (error) {
+      toast.error("Failed to update order status");
+      return;
+    }
+
+    setOrders((prev) =>
+      prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o))
+    );
+    toast.success(`Order marked as ${newStatus}`);
+  }, []);
 
   const totalRevenue = orders
     .filter((o) => o.status !== "cancelled")
@@ -202,13 +235,13 @@ const SellerDashboard = () => {
                   </TabsList>
 
                   <TabsContent value="pending">
-                    <OrderList orders={pendingOrders} emptyText="No pending orders" />
+                    <OrderList orders={pendingOrders} emptyText="No pending orders" onStatusChange={handleStatusChange} />
                   </TabsContent>
                   <TabsContent value="completed">
-                    <OrderList orders={completedOrders} emptyText="No completed orders yet" />
+                    <OrderList orders={completedOrders} emptyText="No completed orders yet" onStatusChange={handleStatusChange} />
                   </TabsContent>
                   <TabsContent value="cancelled">
-                    <OrderList orders={cancelledOrders} emptyText="No cancelled orders" />
+                    <OrderList orders={cancelledOrders} emptyText="No cancelled orders" onStatusChange={handleStatusChange} />
                   </TabsContent>
                 </Tabs>
               )}
@@ -248,7 +281,15 @@ const StatCard = ({
   </motion.div>
 );
 
-const OrderList = ({ orders, emptyText }: { orders: SellerOrder[]; emptyText: string }) => {
+const OrderList = ({
+  orders,
+  emptyText,
+  onStatusChange,
+}: {
+  orders: SellerOrder[];
+  emptyText: string;
+  onStatusChange: (orderId: string, newStatus: string) => void;
+}) => {
   if (orders.length === 0) {
     return (
       <p className="py-8 text-center font-body text-sm text-muted-foreground">{emptyText}</p>
@@ -259,6 +300,7 @@ const OrderList = ({ orders, emptyText }: { orders: SellerOrder[]; emptyText: st
     <div className="space-y-3">
       {orders.map((order, i) => {
         const cfg = statusConfig[order.status] ?? statusConfig.pending;
+        const options = nextStatusOptions[order.status] ?? [];
         return (
           <motion.div
             key={order.id}
@@ -302,6 +344,20 @@ const OrderList = ({ orders, emptyText }: { orders: SellerOrder[]; emptyText: st
                   {cfg.icon}
                   {cfg.label}
                 </Badge>
+                {options.length > 0 && (
+                  <Select onValueChange={(val) => onStatusChange(order.id, val)}>
+                    <SelectTrigger className="h-8 w-[130px] text-xs">
+                      <SelectValue placeholder="Update status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {options.map((s) => (
+                        <SelectItem key={s} value={s} className="text-xs">
+                          {statusConfig[s]?.label ?? s}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
             </div>
           </motion.div>
