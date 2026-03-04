@@ -205,6 +205,15 @@ const SellerDashboard = () => {
               />
             </div>
 
+            {/* Revenue Chart */}
+            <div className="gradient-card mb-8 rounded-xl border border-border p-6 shadow-card">
+              <div className="mb-4 flex items-center gap-2">
+                <TrendingUp size={18} className="text-primary" />
+                <h2 className="font-display text-xl font-semibold text-foreground">Revenue Over Time</h2>
+              </div>
+              <RevenueChart orders={orders} />
+            </div>
+
             {/* Orders Section */}
             <div className="gradient-card rounded-xl border border-border p-6 shadow-card">
               <div className="mb-4 flex items-center gap-2">
