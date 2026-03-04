@@ -18,6 +18,7 @@ import {
   PenLine,
   BarChart3,
 } from "lucide-react";
+import RevenueChart from "@/components/RevenueChart";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
