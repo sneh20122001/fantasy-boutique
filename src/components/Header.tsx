@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
 import { useFavorites } from "@/hooks/useFavorites";
+import NotificationBell from "@/components/NotificationBell";
 
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
