@@ -88,6 +88,7 @@ const Header = () => {
                   </span>
                 )}
               </Link>
+              <NotificationBell />
               <Link
                 to="/orders"
                 className="text-muted-foreground transition-colors hover:text-foreground"
