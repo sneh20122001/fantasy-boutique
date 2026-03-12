@@ -224,7 +224,7 @@ const ListingRow = ({
         </Link>
         <div className="flex shrink-0 flex-col items-end gap-2">
           <span className="font-display text-lg font-semibold text-primary">
-            ${listing.price}
+            ₹{listing.price}
           </span>
           <Badge variant={isSold ? "destructive" : "secondary"} className="text-xs">
             {isSold ? "Sold" : "Active"}
@@ -238,33 +238,33 @@ const ListingRow = ({
             >
               <Pencil size={16} />
             </Link>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <button
-                disabled={deleting === listing.id}
-                className="shrink-0 text-muted-foreground transition-colors hover:text-destructive disabled:opacity-50"
-              >
-                <Trash2 size={16} />
-              </button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Delete this listing?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This will permanently remove your listing. This action cannot be undone.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Keep it</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={() => onDelete(listing.id)}
-                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <button
+                  disabled={deleting === listing.id}
+                  className="shrink-0 text-muted-foreground transition-colors hover:text-destructive disabled:opacity-50"
                 >
-                  Delete
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+                  <Trash2 size={16} />
+                </button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete this listing?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This will permanently remove your listing. This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Keep it</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => onDelete(listing.id)}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         )}
       </div>

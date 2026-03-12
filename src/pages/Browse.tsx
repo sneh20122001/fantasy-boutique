@@ -1,5 +1,6 @@
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import Layout from "@/components/Layout";
+<<<<<<< HEAD
 import ListingCard from "@/components/ListingCard";
 import { useListings } from "@/hooks/useListings";
 import { useListingsImages } from "@/hooks/useListingImages";
@@ -9,8 +10,24 @@ import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+=======
+import { useBrowseState } from "@/hooks/useBrowseState";
+import BrowseSearchBar from "@/components/browse/BrowseSearchBar";
+import BrowseFiltersPanel from "@/components/browse/BrowseFiltersPanel";
+import BrowseListingGrid from "@/components/browse/BrowseListingGrid";
+>>>>>>> 538f260 (Updated project changes)
 
+/**
+ * Browse page — thin orchestrator.
+ *
+ * All state logic lives in `useBrowseState`.
+ * UI is split across three focused sub-components:
+ *   • BrowseSearchBar   — search input, filter toggle, sort dropdown
+ *   • BrowseFiltersPanel — collapsible filters + active badges
+ *   • BrowseListingGrid  — skeleton / grid / empty state
+ */
 const Browse = () => {
+<<<<<<< HEAD
   const { data: listings, isLoading } = useListings();
   const [search, setSearch] = useState("");
   const [showFilters, setShowFilters] = useState(false);
@@ -122,12 +139,20 @@ const Browse = () => {
     setSelectedSizes([]);
     setPriceRange([0, maxPrice]);
   };
+=======
+  const state = useBrowseState();
+>>>>>>> 538f260 (Updated project changes)
 
   return (
     <Layout>
       <section className="py-16">
         <div className="container mx-auto px-6">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-12">
+          {/* Page heading */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-10"
+          >
             <h1 className="font-display text-4xl font-semibold text-foreground">
               Browse <span className="italic text-primary">Stories</span>
             </h1>
@@ -136,6 +161,7 @@ const Browse = () => {
             </p>
           </motion.div>
 
+<<<<<<< HEAD
           {/* Search + Filter Toggle */}
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="mb-6">
             <div className="flex items-center gap-3">
@@ -177,41 +203,43 @@ const Browse = () => {
                 </SelectContent>
               </Select>
             </div>
+=======
+          {/* Search + sort bar */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.15 }}
+            className="mb-5"
+          >
+            <BrowseSearchBar
+              search={state.search}
+              onSearchChange={state.setSearch}
+              showFilters={state.showFilters}
+              onToggleFilters={() => state.setShowFilters((v) => !v)}
+              activeFilterCount={state.activeFilterCount}
+              sortKey={state.sortKey}
+              onSortChange={state.setSortKey}
+            />
+>>>>>>> 538f260 (Updated project changes)
           </motion.div>
 
-          {/* Filter Panel */}
-          <AnimatePresence>
-            {showFilters && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.25 }}
-                className="mb-8 overflow-hidden"
-              >
-                <div className="rounded-lg border border-border bg-secondary/50 p-5 space-y-5">
-                  {/* Brand filter */}
-                  <div>
-                    <label className="mb-2 block font-body text-xs uppercase tracking-widest text-muted-foreground">
-                      Brand
-                    </label>
-                    <div className="flex flex-wrap gap-2">
-                      {uniqueBrands.map((brand) => (
-                        <button
-                          key={brand}
-                          onClick={() => toggleBrand(brand)}
-                          className={`rounded-full border px-3 py-1.5 font-body text-xs transition-colors ${
-                            selectedBrands.includes(brand)
-                              ? "border-primary bg-primary/15 text-primary"
-                              : "border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
-                          }`}
-                        >
-                          {brand}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+          {/* Collapsible filter panel + active badge chips */}
+          <BrowseFiltersPanel
+            showFilters={state.showFilters}
+            uniqueBrands={state.uniqueBrands}
+            uniqueSizes={state.uniqueSizes}
+            maxPrice={state.maxPrice}
+            selectedBrands={state.selectedBrands}
+            selectedSizes={state.selectedSizes}
+            priceRange={state.priceRange}
+            activeFilterCount={state.activeFilterCount}
+            onToggleBrand={state.toggleBrand}
+            onToggleSize={state.toggleSize}
+            onPriceChange={state.setPriceRange}
+            onClearFilters={state.clearFilters}
+          />
 
+<<<<<<< HEAD
                   {/* Size filter */}
                   <div>
                     <label className="mb-2 block font-body text-xs uppercase tracking-widest text-muted-foreground">
@@ -320,6 +348,16 @@ const Browse = () => {
               No stories found. Try a different search or adjust your filters.
             </p>
           )}
+=======
+          {/* Listing grid (skeleton / results / empty state) */}
+          <BrowseListingGrid
+            isLoading={state.isLoading}
+            listings={state.filtered}
+            imagesMap={state.imagesMap}
+            activeFilterCount={state.activeFilterCount}
+            onClearFilters={state.clearFilters}
+          />
+>>>>>>> 538f260 (Updated project changes)
         </div>
       </section>
     </Layout>

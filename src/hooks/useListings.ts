@@ -22,8 +22,21 @@ export const useListings = () => {
         .select("*")
         .eq("status", "available")
         .order("created_at", { ascending: false });
-      if (error) throw error;
+
+      // If the table doesn't exist or returns an error, return empty array
+      // so the hook caller falls back to mockListings gracefully.
+      if (error) {
+        console.warn("[useListings] Supabase error (using mock data):", error.message);
+        return [];
+      }
       return (data ?? []) as AnonymousListing[];
     },
+    // Don't retry on 4xx — it will just delay the mock fallback
+    retry: (failureCount, error: any) => {
+      if (error?.status >= 400 && error?.status < 500) return false;
+      return failureCount < 2;
+    },
+    // Stale time: 5 minutes
+    staleTime: 5 * 60 * 1000,
   });
 };

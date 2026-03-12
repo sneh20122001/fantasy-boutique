@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import Layout from "@/components/Layout";
@@ -375,6 +376,165 @@ const OrderList = ({
       })}
     </div>
   );
+=======
+import { motion } from "framer-motion";
+import Layout from "@/components/Layout";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate, Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { BarChart2, TrendingUp, Package, Eye, ShoppingBag, PenLine, Edit } from "lucide-react";
+
+interface ListingStats {
+    id: string;
+    brand: string;
+    size: string;
+    price: number;
+    status: string;
+    image_url: string | null;
+    fantasy_text: string;
+    created_at: string;
+    orderCount: number;
+}
+
+const SellerDashboard = () => {
+    const { user, isSeller, loading: authLoading } = useAuth();
+    const navigate = useNavigate();
+    const [listings, setListings] = useState<ListingStats[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        if (authLoading) return;
+        if (!user) { navigate("/auth"); return; }
+        if (!isSeller) { navigate("/"); return; }
+
+        const fetch = async () => {
+            const { data: listingData } = await supabase
+                .from("listings")
+                .select("id, brand, size, price, status, image_url, fantasy_text, created_at")
+                .eq("seller_id", user.id)
+                .order("created_at", { ascending: false });
+
+            if (listingData) {
+                // For each listing, count orders
+                const withOrders = await Promise.all(
+                    listingData.map(async (l: any) => {
+                        const { count } = await supabase
+                            .from("orders")
+                            .select("id", { count: "exact", head: true })
+                            .eq("listing_id", l.id);
+                        return { ...l, orderCount: count ?? 0 };
+                    })
+                );
+                setListings(withOrders);
+            }
+            setLoading(false);
+        };
+        fetch();
+    }, [user, isSeller, authLoading, navigate]);
+
+    if (authLoading || loading) {
+        return (
+            <Layout>
+                <section className="py-16">
+                    <div className="container mx-auto max-w-4xl px-6 animate-pulse space-y-4">
+                        <div className="h-8 w-48 rounded bg-muted" />
+                        <div className="grid grid-cols-3 gap-4">{[1, 2, 3].map(i => <div key={i} className="h-24 rounded-lg bg-muted" />)}</div>
+                        <div className="h-64 rounded-lg bg-muted" />
+                    </div>
+                </section>
+            </Layout>
+        );
+    }
+
+    const totalListings = listings.length;
+    const availableCount = listings.filter(l => l.status === "available").length;
+    const soldCount = listings.filter(l => l.status === "sold").length;
+    const totalRevenue = listings.filter(l => l.status === "sold").reduce((s, l) => s + Number(l.price), 0);
+    const totalOrders = listings.reduce((s, l) => s + l.orderCount, 0);
+
+    const statCards = [
+        { label: "Total Listings", value: totalListings, icon: Package, color: "text-primary" },
+        { label: "Available", value: availableCount, icon: Eye, color: "text-emerald-400" },
+        { label: "Sold", value: soldCount, icon: ShoppingBag, color: "text-amber-400" },
+        { label: "Revenue", value: `₹${totalRevenue}`, icon: TrendingUp, color: "text-sky-400" },
+        { label: "Orders", value: totalOrders, icon: BarChart2, color: "text-violet-400" },
+    ];
+
+    return (
+        <Layout>
+            <section className="py-16">
+                <div className="container mx-auto max-w-4xl px-6">
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+                        <div className="mb-8 flex items-center justify-between">
+                            <div>
+                                <h1 className="font-display text-3xl font-semibold text-foreground">
+                                    Seller <span className="italic text-primary">Dashboard</span>
+                                </h1>
+                                <p className="mt-1 font-body text-sm text-muted-foreground">Your store analytics at a glance</p>
+                            </div>
+                            <Link to="/sell" className="flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 font-body text-sm font-medium text-primary-foreground shadow-glow transition-transform hover:scale-105">
+                                <PenLine size={14} /> New Listing
+                            </Link>
+                        </div>
+
+                        {/* Stat cards */}
+                        <div className="mb-10 grid grid-cols-2 gap-4 sm:grid-cols-5">
+                            {statCards.map((s) => (
+                                <div key={s.label} className="gradient-card rounded-lg border border-border p-4 text-center shadow-card">
+                                    <div className="mx-auto mb-2 flex h-9 w-9 items-center justify-center rounded-full bg-primary/10">
+                                        <s.icon size={16} className={s.color} />
+                                    </div>
+                                    <p className="font-display text-xl font-semibold text-foreground">{s.value}</p>
+                                    <p className="font-body text-xs text-muted-foreground">{s.label}</p>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Listings table */}
+                        <div className="gradient-card rounded-lg border border-border shadow-card overflow-hidden">
+                            <div className="border-b border-border px-6 py-4">
+                                <h2 className="font-display text-lg font-semibold text-foreground">Your Listings</h2>
+                            </div>
+                            {listings.length === 0 ? (
+                                <div className="py-16 text-center">
+                                    <p className="font-body text-sm text-muted-foreground">No listings yet.</p>
+                                    <Link to="/sell" className="mt-3 inline-block font-body text-sm text-primary hover:underline">Create your first listing</Link>
+                                </div>
+                            ) : (
+                                <div className="divide-y divide-border">
+                                    {listings.map((l, i) => (
+                                        <motion.div key={l.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.04 }}
+                                            className="flex items-center gap-4 px-6 py-4">
+                                            {l.image_url && <img src={l.image_url} alt={l.brand} className="h-12 w-12 shrink-0 rounded-md object-cover" />}
+                                            <div className="min-w-0 flex-1">
+                                                <p className="truncate font-body text-sm font-medium text-foreground">{l.brand} · Size {l.size}</p>
+                                                <p className="line-clamp-1 font-display text-xs italic text-muted-foreground">"{l.fantasy_text}"</p>
+                                            </div>
+                                            <div className="hidden sm:flex flex-col items-end gap-1">
+                                                <span className="font-display text-base font-semibold text-primary">₹{l.price}</span>
+                                                <span className={`font-body text-[10px] uppercase tracking-wider ${l.status === "available" ? "text-emerald-400" : "text-amber-400"}`}>
+                                                    {l.status}
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center gap-1 rounded-full bg-secondary px-2.5 py-1">
+                                                <ShoppingBag size={11} className="text-muted-foreground" />
+                                                <span className="font-body text-xs text-muted-foreground">{l.orderCount}</span>
+                                            </div>
+                                            <Link to={`/edit-listing/${l.id}`} className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-secondary hover:text-primary" title="Edit">
+                                                <Edit size={14} />
+                                            </Link>
+                                        </motion.div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </motion.div>
+                </div>
+            </section>
+        </Layout>
+    );
+>>>>>>> 538f260 (Updated project changes)
 };
 
 export default SellerDashboard;

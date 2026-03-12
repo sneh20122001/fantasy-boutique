@@ -162,7 +162,7 @@ const EditListing = () => {
               </div>
 
               <div>
-                <label className="mb-2 block font-body text-xs uppercase tracking-widest text-muted-foreground">Price ($)</label>
+                <label className="mb-2 block font-body text-xs uppercase tracking-widest text-muted-foreground">Price (₹)</label>
                 <input type="number" required min="1" step="0.01" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="45"
                   className="w-full rounded-lg border border-border bg-secondary px-4 py-3 font-body text-sm text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:outline-none" />
               </div>

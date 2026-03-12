@@ -67,15 +67,36 @@
 @layer base {
   * {
     @apply border-border;
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent; /* remove tap flash on mobile */
   }
 
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-body);
+    /* Prevent layout shifts from scrollbar appearing/disappearing */
+    overflow-x: hidden;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
+  }
+
+  /* Better focus rings for accessibility */
+  :focus-visible {
+    outline: 2px solid hsl(var(--primary));
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Smooth image rendering */
+  img {
+    display: block;
+    max-width: 100%;
   }
 }
 
@@ -107,7 +128,7 @@
   .text-cream-soft {
     color: hsl(var(--cream-soft));
   }
-  .text-rose {
+  .text-rose-custom {
     color: hsl(var(--rose));
   }
   .text-gold {
@@ -118,5 +139,76 @@
   }
   .border-wine {
     border-color: hsl(var(--wine));
+  }
+
+  /* Mobile-friendly tap targets */
+  .tap-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Line clamp utilities (belt-and-suspenders for older browsers) */
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Animated underline on hover */
+  .hover-underline {
+    position: relative;
+  }
+  .hover-underline::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: hsl(var(--primary));
+    transition: width 0.25s ease;
+  }
+  .hover-underline:hover::after {
+    width: 100%;
+  }
+
+  /* Glassmorphism card */
+  .glass-card {
+    background: hsl(345 35% 10% / 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid hsl(345 25% 25% / 0.5);
+  }
+
+  /* Skeleton shimmer */
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  .skeleton-shimmer {
+    background: linear-gradient(
+      90deg,
+      hsl(345 20% 14%) 25%,
+      hsl(345 20% 18%) 50%,
+      hsl(345 20% 14%) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.6s ease-in-out infinite;
+  }
+
+  /* Page transition wrapper */
+  .page-enter {
+    animation: pageEnter 0.35s ease forwards;
+  }
+  @keyframes pageEnter {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
 }

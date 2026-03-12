@@ -18,10 +18,18 @@ export const useListingImages = (listingId: string | undefined) => {
         .select("*")
         .eq("listing_id", listingId)
         .order("position", { ascending: true });
-      if (error) throw error;
+      if (error) {
+        console.warn("[useListingImages] Supabase error:", error.message);
+        return [];
+      }
       return (data ?? []) as ListingImage[];
     },
     enabled: !!listingId,
+    retry: (failureCount, error: any) => {
+      if (error?.status >= 400 && error?.status < 500) return false;
+      return failureCount < 2;
+    },
+    staleTime: 5 * 60 * 1000,
   });
 };
 
@@ -35,7 +43,10 @@ export const useListingsImages = (listingIds: string[]) => {
         .select("*")
         .in("listing_id", listingIds)
         .order("position", { ascending: true });
-      if (error) throw error;
+      if (error) {
+        console.warn("[useListingsImages] Supabase error:", error.message);
+        return {};
+      }
       const grouped: Record<string, ListingImage[]> = {};
       for (const img of (data ?? []) as ListingImage[]) {
         if (!grouped[img.listing_id]) grouped[img.listing_id] = [];
@@ -44,5 +55,10 @@ export const useListingsImages = (listingIds: string[]) => {
       return grouped;
     },
     enabled: listingIds.length > 0,
+    retry: (failureCount, error: any) => {
+      if (error?.status >= 400 && error?.status < 500) return false;
+      return failureCount < 2;
+    },
+    staleTime: 5 * 60 * 1000,
   });
 };
